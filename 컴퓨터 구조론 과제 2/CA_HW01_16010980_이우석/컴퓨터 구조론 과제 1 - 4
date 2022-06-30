@@ -1,0 +1,262 @@
+.globl main
+
+.data
+# 출력할 문장들
+select: .asciiz "Select Procedure : "
+input_a: .asciiz "a is : "
+input_b: .asciiz "b is : "
+input_n: .asciiz "n is : "
+result_true: .asciiz " is multiple of three!"
+result_false: .asciiz " is not multiple of three!"
+space: .asciiz "	"
+#
+
+.text
+# main
+main:
+# select 문장 출력
+la $a0 select
+li $v0 4
+syscall
+#
+
+# integer 값 입력 받음
+li $v0 5
+syscall
+#
+
+# t0 (Select Procedure) 레지스터에 입력 받은 값 저장
+add $t0 $v0 $zero
+
+# 입력 값이 1 이면 1 함수 실행 아니면, 2 함수 실행
+beq $t0 1 driver_1
+j driver_2
+#
+
+# 1 함수 구동 함수
+driver_1:
+# 스택에 4byte 확보
+addi $sp $sp -4
+# ra 레지스터 값을 스택에 저장
+sw $ra 0($sp)
+
+# select_1 함수 호출
+jal select_1
+
+# ra 레지스터 값 복원
+lw $ra 0($sp)
+# 스택 4byre 반납
+addi $sp $sp 4
+
+# 종료
+li $v0 10
+syscall
+#
+
+# 2 함수 구동 함수
+driver_2:
+# 스택에 4byte 확보
+addi $sp $sp -4
+# ra 레지스터 값을 스택에 저장
+sw $ra 0($sp)
+
+# select_2 함수 호출
+jal select_2
+
+# ra 레지스터 값 복원
+lw $ra 0($sp)
+# 스택 4byre 반납
+addi $sp $sp 4
+
+# 종료
+li $v0 10
+syscall
+#
+
+# select_1 함수
+select_1:
+# input_a 문장 출력
+la $a0 input_a
+li $v0 4
+syscall
+#
+
+# integer 값 입력 받음
+li $v0 5
+syscall
+#
+
+# t0 (a) 레지스터에 입력 받은 값 저장
+add $t0 $v0 $zero
+
+# input_b 문장 출력
+la $a0 input_b
+li $v0 4
+syscall
+#
+
+# integer 값 입력 받음
+li $v0 5
+syscall
+#
+
+# t0 (a) 레지스터에 있는 값에 입력 받은 값만큼 뺌 -> t0 (a - b)
+sub $t0 $t0 $v0
+
+# s0 레지스터에 3을 넣음
+addi $s0 $s0 3
+# t0 레지스터 값을 s0 레지스터 값으로 나눔
+div $t0 $s0
+# 나눈 나머지를 t1 ((a - b) % 3) 레지스터에 넣음
+mfhi $t1
+
+# 나눈 나머지가 0 일 경우,
+beq $t1 $zero true_1
+
+# 아닐 경우,
+# a0 레지스터에 t0 값을 넣고 출력
+add $a0 $t0 $zero
+li $v0 1
+syscall
+#
+
+# result_false 문장 출력
+la $a0 result_false
+li $v0 4
+syscall
+#
+
+# 리턴
+jr $ra
+
+# true_1 (참일 경우,)
+true_1:
+# a0 레지스터에 t0 값을 넣고 출력
+add $a0 $t0 $zero
+li $v0 1
+syscall
+#
+
+# result_true 문장 출력
+la $a0 result_true
+li $v0 4
+syscall
+#
+
+# 리턴
+jr $ra
+
+# select_2 함수
+select_2:
+# input_n 문장 출력
+la $a0 input_n
+li $v0 4
+syscall
+#
+
+# integer 값 입력 받음
+li $v0 5
+syscall
+#
+
+# t0 (n) 레지스터에 입력 받은 값 저장
+add $t0 $v0 $zero
+
+# input_a 문장 출력
+la $a0 input_a
+li $v0 4
+syscall
+#
+
+# integer 값 입력 받음
+li $v0 5
+syscall
+#
+
+# t1 (a) 레지스터에 입력 받은 값 저장
+add $t1 $v0 $zero
+
+# t2, t3 레지스터에 1 을 넣음
+addi $t2 $t2 1
+addi $t3 $t3 1
+#
+
+# a0 레지스터에 t2 값을 넣고 출력
+add $a0 $t2 $zero
+li $v0 1
+syscall
+#
+
+# space (공백) 문장 출력
+la $a0 space
+li $v0 4
+syscall
+#
+
+# a0 레지스터에 t3 값을 넣고 출력
+add $a0 $t3 $zero
+li $v0 1
+syscall
+#
+
+# space (공백) 문장 출력
+la $a0 space
+li $v0 4
+syscall
+#
+
+# t0 (n) 값을 1 줄임
+addi $t0 $t0 -1
+
+# loop (반복문)
+loop:
+# t2 값과 t3 값을 더해서 t2 레지스터에 넣음
+add $t2 $t2 $t3
+# t2 값에 t1 (a) 를 더함
+add $t2 $t2 $t1
+
+# a0 레지스터에 t2 값을 넣고 출력
+add $a0 $t2 $zero
+li $v0 1
+syscall
+#
+
+# space (공백) 문장 출력
+la $a0 space
+li $v0 4
+syscall
+#
+
+# t0 (n) 값을 1 줄임
+addi $t0 $t0 -1
+
+# t0 (n) 값이 만약 0 이라면 end 로 점프
+beq $t0 $zero end
+
+# t2 값과 t3 값을 더해서 t3 레지스터에 넣음
+add $t3 $t3 $t2
+# t3 값에 t1 (a) 를 더함
+add $t3 $t3 $t1
+
+# a0 레지스터에 t3 값을 넣고 출력
+add $a0 $t3 $zero
+li $v0 1
+syscall
+#
+
+# space (공백) 문장 출력
+la $a0 space
+li $v0 4
+syscall
+#
+
+# t0 (n) 값을 1 줄임
+addi $t0 $t0 -1
+
+# t0 (n) 값이 만약 0 이 아니라면 다시 loop 로 점프
+bne $t0 $zero loop
+
+# end
+end:
+# 리턴
+jr $ra
